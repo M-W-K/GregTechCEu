@@ -6,14 +6,18 @@ import gregtech.api.capability.IOpticalDataAccessHatch;
 import gregtech.api.recipes.Recipe;
 import gregtech.common.pipelike.optical.tile.TileEntityOpticalPipe;
 
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+
+import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.Collection;
+import java.util.List;
 
 public class OpticalNetHandler implements IDataAccessHatch, IOpticalComputationProvider {
 
@@ -43,6 +47,14 @@ public class OpticalNetHandler implements IDataAccessHatch, IOpticalComputationP
         boolean isAvailable = traverseRecipeAvailable(recipe, seen);
         if (isAvailable) setPipesActive();
         return isAvailable;
+    }
+
+    @Override
+    public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
+                                               @NotNull Collection<IDataAccessHatch> seen) {
+        Recipe recipe = traverseRecipeFind(voltage, inputs, fluidInputs, seen);
+        if (recipe != null) setPipesActive();
+        return recipe;
     }
 
     @Override
@@ -92,6 +104,21 @@ public class OpticalNetHandler implements IDataAccessHatch, IOpticalComputationP
             return hatch.isRecipeAvailable(recipe, seen);
         }
         return false;
+    }
+
+    private Recipe traverseRecipeFind(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen) {
+        if (isNetInvalidForTraversal()) return null;
+
+        OpticalRoutePath inv = net.getNetData(pipe.getPipePos(), facing);
+        if (inv == null) return null;
+
+        IOpticalDataAccessHatch hatch = inv.getDataHatch();
+        if (hatch == null || seen.contains(hatch)) return null;
+
+        if (hatch.isTransmitter()) {
+            return hatch.findCompoundRecipe(voltage, inputs, fluidInputs, seen);
+        }
+        return null;
     }
 
     private int traverseRequestCWUt(int cwut, boolean simulate, @NotNull Collection<IOpticalComputationProvider> seen) {

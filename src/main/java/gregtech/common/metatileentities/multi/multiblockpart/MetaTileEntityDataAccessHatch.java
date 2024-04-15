@@ -37,6 +37,7 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextComponentTranslation;
 import net.minecraft.world.World;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.items.IItemHandlerModifiable;
 
 import codechicken.lib.render.CCRenderState;
@@ -54,12 +55,14 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
                                            IDataInfoProvider {
 
     private final Set<Recipe> recipes;
+    private final Set<CompoundRecipe> compoundRecipes;
     private final boolean isCreative;
 
     public MetaTileEntityDataAccessHatch(ResourceLocation metaTileEntityId, int tier, boolean isCreative) {
         super(metaTileEntityId, tier, false);
         this.isCreative = isCreative;
         this.recipes = isCreative ? Collections.emptySet() : new ObjectOpenHashSet<>();
+        this.compoundRecipes = new ObjectOpenHashSet<>();
         rebuildData(getController() instanceof MetaTileEntityDataBank);
     }
 
@@ -136,6 +139,7 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
     private void rebuildData(boolean isDataBank) {
         if (isCreative || getWorld() == null || getWorld().isRemote) return;
         recipes.clear();
+        compoundRecipes.clear();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             ItemStack stack = this.importItems.getStackInSlot(i);
             boolean isValid = AssemblyLineManager.isStackDataItem(stack, isDataBank);
@@ -153,10 +157,7 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
             // compound recipe attempt
             CompoundRecipe compoundRecipe = AdvancedProcessingLineManager.readCompoundRecipe(stack);
             if (compoundRecipe != null) {
-                ValidationResult<Recipe> validation = compoundRecipe.getRecipe();
-                if (validation.getType() == EnumValidationResult.VALID) {
-                    recipes.add(validation.getResult());
-                }
+                compoundRecipes.add(compoundRecipe);
             }
         }
     }
@@ -165,6 +166,15 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
     public boolean isRecipeAvailable(@NotNull Recipe recipe, @NotNull Collection<IDataAccessHatch> seen) {
         seen.add(this);
         return recipes.contains(recipe);
+    }
+
+    @Override
+    public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
+                                               @NotNull Collection<IDataAccessHatch> seen) {
+        seen.add(this);
+        Optional<CompoundRecipe> optional = compoundRecipes.stream()
+                .filter(a -> a.matchRecipe(false, voltage, inputs, fluidInputs)).findFirst();
+        return optional.map(compoundRecipe -> compoundRecipe.getRecipe().getResult()).orElse(null);
     }
 
     @Override

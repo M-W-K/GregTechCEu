@@ -26,6 +26,9 @@ import net.minecraftforge.common.capabilities.Capability;
 import codechicken.lib.render.CCRenderState;
 import codechicken.lib.render.pipeline.IVertexOperation;
 import codechicken.lib.vec.Matrix4;
+
+import net.minecraftforge.fluids.FluidStack;
+
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -92,6 +95,41 @@ public class MetaTileEntityOpticalDataHatch extends MetaTileEntityMultiblockNoti
             }
         }
         return false;
+    }
+
+    @Override
+    public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
+                                               @NotNull Collection<IDataAccessHatch> seen) {
+        seen.add(this);
+        if (isAttachedToMultiBlock()) {
+            if (isTransmitter()) {
+                MultiblockControllerBase controller = getController();
+                if (!controller.isActive()) return null;
+                Recipe recipe = findCompoundRecipe(controller.getAbilities(MultiblockAbility.DATA_ACCESS_HATCH), seen, voltage, inputs, fluidInputs);
+                return recipe != null ? recipe : findCompoundRecipe(controller.getAbilities(MultiblockAbility.OPTICAL_DATA_RECEPTION), seen, voltage, inputs, fluidInputs);
+            } else {
+                TileEntity tileEntity = getNeighbor(getFrontFacing());
+                if (tileEntity == null) return null;
+
+                if (tileEntity instanceof TileEntityOpticalPipe) {
+                    IDataAccessHatch cap = tileEntity.getCapability(GregtechTileCapabilities.CAPABILITY_DATA_ACCESS,
+                            getFrontFacing().getOpposite());
+                    if (cap == null) return null;
+                    return cap.findCompoundRecipe(voltage, inputs, fluidInputs, seen);
+                }
+            }
+        }
+        return null;
+    }
+
+    private static Recipe findCompoundRecipe(@NotNull Iterable<? extends IDataAccessHatch> hatches,
+                                             @NotNull Collection<IDataAccessHatch> seen,
+                                              long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs) {
+        for (IDataAccessHatch hatch : hatches) {
+            if (seen.contains(hatch)) continue;
+            return hatch.findCompoundRecipe(voltage, inputs, fluidInputs, seen);
+        }
+        return null;
     }
 
     private static boolean isRecipeAvailable(@NotNull Iterable<? extends IDataAccessHatch> hatches,

@@ -19,8 +19,6 @@ import java.util.Map;
 
 public class AdvancedProcessingLineManager {
 
-    private static final Map<Recipe, Integer> referentCountMap = new Object2IntOpenHashMap<>();
-
     public static final String COMPOUND_RECIPE_NBT_TAG = "advancedprocessinglineRecipe";
 
     private AdvancedProcessingLineManager() {}
@@ -45,7 +43,7 @@ public class AdvancedProcessingLineManager {
         if (!hasRecipeTag(tag)) return null;
 
         NBTTagCompound compoundRecipeTag = tag.getCompoundTag(COMPOUND_RECIPE_NBT_TAG);
-        return CompoundRecipe.readFromNBT(tag.getCompoundTag("recipe"));
+        return CompoundRecipe.readFromNBT(compoundRecipeTag.getCompoundTag("recipe"));
     }
 
     /**
@@ -55,27 +53,5 @@ public class AdvancedProcessingLineManager {
     private static boolean hasRecipeTag(@Nullable NBTTagCompound tag) {
         if (tag == null || tag.isEmpty()) return false;
         return tag.hasKey(COMPOUND_RECIPE_NBT_TAG, Constants.NBT.TAG_COMPOUND);
-    }
-
-    public static void addRecipe(CompoundRecipe compoundRecipe) {
-        Recipe recipe = compoundRecipe.getRecipe().getResult();
-        referentCountMap.compute(recipe, (k, v) -> {
-            if (v == null) {
-                RecipeMaps.ADVANCED_PROCESSING_LINE_RECIPES.addRecipe(compoundRecipe.getRecipe());
-                return 1;
-            }
-            else return v + 1;
-        });
-    }
-
-    public static void removeRecipe(CompoundRecipe compoundRecipe) {
-        Recipe recipe = compoundRecipe.getRecipe().getResult();
-        referentCountMap.computeIfPresent(recipe, (k, v) -> {
-            if (v == 1) {
-                RecipeMaps.ADVANCED_PROCESSING_LINE_RECIPES.removeRecipe(recipe);
-                return null;
-            }
-            else return v - 1;
-        });
     }
 }

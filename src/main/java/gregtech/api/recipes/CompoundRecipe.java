@@ -1,11 +1,14 @@
 package gregtech.api.recipes;
 
+import gregtech.api.capability.IMultipleTankHandler;
+import gregtech.api.recipes.builders.SimpleRecipeBuilder;
 import gregtech.api.recipes.ingredients.GTRecipeFluidInput;
 import gregtech.api.recipes.ingredients.GTRecipeInput;
 import gregtech.api.recipes.ingredients.GTRecipeItemInput;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.recipes.logic.OverclockingLogic;
 import gregtech.api.util.AdvancedProcessingLineManager;
+import gregtech.api.util.EnumValidationResult;
 import gregtech.api.util.ValidationResult;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -15,6 +18,9 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.fluids.FluidStack;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
+import net.minecraftforge.items.IItemHandlerModifiable;
+
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -73,7 +79,7 @@ public class CompoundRecipe {
     }
 
     public void bakeRecipe() {
-        RecipeBuilder<?> builder = RecipeMaps.ADVANCED_PROCESSING_LINE_RECIPES.recipeBuilder().EUt(1).duration(0);
+        RecipeBuilder<?> builder = new SimpleRecipeBuilder().EUt(1).duration(0);
 
         for (Map.Entry<Recipe, RecipeInfo> recipe : recipes.entrySet()) {
             List<ItemStack> recipeOutputs = deepCopyIS(recipe.getKey().getOutputs(), recipe.getValue().mult);
@@ -171,8 +177,20 @@ public class CompoundRecipe {
         return bakedRecipe;
     }
 
-    public ValidationResult<Recipe> bakeAndGetRecipe() {
-        return getRecipe();
+    public boolean matchRecipe(boolean consumeIfSuccessful, long voltage, List<ItemStack> inputs,
+                               List<FluidStack> fluidInputs) {
+        ValidationResult<Recipe> recipe = getRecipe();
+        if (recipe.getType() != EnumValidationResult.VALID) return false;
+        return recipe.getResult().matches(consumeIfSuccessful, inputs, fluidInputs)
+                && recipe.getResult().getEUt() <= voltage;
+    }
+
+    protected void invalidateBaked() {
+        validBaked = false;
+    }
+
+    protected void validateBaked() {
+        validBaked = true;
     }
 
     public NBTTagCompound writeToNBT() {
@@ -328,15 +346,5 @@ public class CompoundRecipe {
             return new RecipeInfo(recipe, mult, map, machineStacks);
         }
 
-    }
-
-    protected void invalidateBaked() {
-        validBaked = false;
-        AdvancedProcessingLineManager.removeRecipe(this);
-    }
-
-    protected void validateBaked() {
-        validBaked = true;
-        AdvancedProcessingLineManager.addRecipe(this);
     }
 }
