@@ -269,7 +269,7 @@ public class CompoundRecipe {
         return list.stream().filter(a -> a.amount != 0).collect(Collectors.toList());
     }
 
-    protected static class RecipeInfo {
+    public static class RecipeInfo {
 
         public final Recipe recipe;
         public int mult;

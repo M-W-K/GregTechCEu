@@ -242,6 +242,12 @@ public class MetaTileEntityLoader {
                 new UnificationEntry(OrePrefix.gear, Materials.Ruridit), 'A', MetaItems.ROBOT_ARM_IV.getStackForm(),
                 'F', OreDictUnifier.get(OrePrefix.frameGt, Materials.TungstenSteel));
 
+        ModHandler.addShapedRecipe(true, "casing_adv_processing_line",
+                MetaBlocks.MULTIBLOCK_CASING.getItemVariant(ADV_PROCESSING_LINE_CASING, ConfigHolder.recipes.casingsPerCraft),
+                "PGP", "AFA", "PGP", 'P', new UnificationEntry(OrePrefix.plate, Materials.HSSE), 'G',
+                new UnificationEntry(OrePrefix.gear, Materials.Osmiridium), 'A', MetaItems.ROBOT_ARM_LuV.getStackForm(),
+                'F', OreDictUnifier.get(OrePrefix.frameGt, Materials.HSSS));
+
         ModHandler.addShapedRecipe(true, "warning_sign_yellow_stripes",
                 MetaBlocks.WARNING_SIGN.getItemVariant(YELLOW_STRIPES), "Y  ", " M ", "  B", 'M',
                 MetaBlocks.METAL_CASING.getItemVariant(STEEL_SOLID), 'Y', "dyeYellow", 'B', "dyeBlack");
@@ -691,6 +697,11 @@ public class MetaTileEntityLoader {
                 MetaItems.SENSOR_LuV, 'P', MetaTileEntities.PROCESSING_ARRAY.getStackForm(), 'E', MetaItems.EMITTER_LuV,
                 'H', new UnificationEntry(OrePrefix.plate, Materials.HSSE), 'N',
                 new UnificationEntry(OrePrefix.pipeLargeFluid, Materials.Naquadah));
+        ModHandler.addShapedRecipe(true, "advanced_processing_line",
+                MetaTileEntities.ADVANCED_PROCESSING_LINE.getStackForm(), "PRP", "SAE", "CRC", 'A',
+                MetaTileEntities.PROCESSING_ARRAY.getStackForm(), 'R', MetaItems.ROBOT_ARM_LuV, 'C',
+                new UnificationEntry(OrePrefix.plate, Materials.HSSE), 'E', MetaItems.EMITTER_LuV,
+                'S', MetaItems.SENSOR_LuV, 'P', new UnificationEntry(OrePrefix.pipeNormalFluid, Materials.Naquadah));
 
         // GENERATORS
         ModHandler.addShapedRecipe(true, "diesel_generator_lv", MetaTileEntities.COMBUSTION_GENERATOR[0].getStackForm(),

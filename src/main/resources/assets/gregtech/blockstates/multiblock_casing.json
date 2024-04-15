@@ -73,6 +73,19 @@
         "bot_all": "gregtech:blocks/casings/mechanic/machine_casing_assembly_line",
         "top_all": "gregtech:blocks/casings/mechanic/machine_casing_assembly_line_bloom"
       }
+    },
+    "active=false,variant=adv_processing_line": {
+      "model": "minecraft:cube_all",
+      "textures": {
+        "all": "gregtech:blocks/casings/mechanic/machine_casing_adv_processing_line"
+      }
+    },
+    "active=true,variant=adv_processing_line": {
+      "model": "gregtech:cube_2_layer_all",
+      "textures": {
+        "bot_all": "gregtech:blocks/casings/mechanic/machine_casing_adv_processing_line",
+        "top_all": "gregtech:blocks/casings/mechanic/machine_casing_adv_processing_line_bloom"
+      }
     }
   }
 }

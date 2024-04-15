@@ -169,12 +169,12 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
     }
 
     @Override
-    public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
+    public @Nullable CompoundRecipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
                                                @NotNull Collection<IDataAccessHatch> seen) {
         seen.add(this);
         Optional<CompoundRecipe> optional = compoundRecipes.stream()
                 .filter(a -> a.matchRecipe(false, voltage, inputs, fluidInputs)).findFirst();
-        return optional.map(compoundRecipe -> compoundRecipe.getRecipe().getResult()).orElse(null);
+        return optional.orElse(null);
     }
 
     @Override

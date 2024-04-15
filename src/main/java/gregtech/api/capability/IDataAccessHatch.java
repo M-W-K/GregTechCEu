@@ -1,5 +1,6 @@
 package gregtech.api.capability;
 
+import gregtech.api.recipes.CompoundRecipe;
 import gregtech.api.recipes.Recipe;
 
 import gregtech.api.recipes.RecipeMaps;
@@ -35,8 +36,8 @@ public interface IDataAccessHatch {
     boolean isRecipeAvailable(@NotNull Recipe recipe, @NotNull Collection<IDataAccessHatch> seen);
 
     /**
-     * If passed a {@code seen} context, you must use {@link #isRecipeAvailable(Recipe, Collection)} to prevent
-     * infinite recursion
+     * If passed a {@code seen} context, you must use {@link #findCompoundRecipe(long, List, List, Collection)} to
+     * prevent infinite recursion
      *
      * @param voltage     Voltage of the Machine or Long.MAX_VALUE if it has no Voltage
      * @param inputs      the Item Inputs
@@ -44,7 +45,7 @@ public interface IDataAccessHatch {
      * @return the first matching compound recipe found, or null.
      */
     @Nullable
-    default Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs) {
+    default CompoundRecipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs) {
         Collection<IDataAccessHatch> list = new ArrayList<>();
         list.add(this);
         return findCompoundRecipe(voltage, inputs, fluidInputs, list);
@@ -59,7 +60,7 @@ public interface IDataAccessHatch {
      * @return the first matching compound recipe found, or null.
      */
     @Nullable
-    Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen);
+    CompoundRecipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen);
 
     /**
      * @return true if this Data Access Hatch is creative or not

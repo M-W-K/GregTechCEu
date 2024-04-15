@@ -6,6 +6,7 @@ import gregtech.api.capability.IDataAccessHatch;
 import gregtech.api.capability.IOpticalComputationProvider;
 import gregtech.api.pipenet.tile.IPipeTile;
 import gregtech.api.pipenet.tile.TileEntityPipeBase;
+import gregtech.api.recipes.CompoundRecipe;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.util.TaskScheduler;
 import gregtech.common.pipelike.optical.OpticalPipeProperties;
@@ -212,7 +213,7 @@ public class TileEntityOpticalPipe extends TileEntityPipeBase<OpticalPipeType, O
         }
 
         @Override
-        public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen) {
+        public @Nullable CompoundRecipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen) {
             return null;
         }
 

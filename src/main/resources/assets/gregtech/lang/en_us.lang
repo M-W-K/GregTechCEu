@@ -2692,6 +2692,7 @@ tile.multiblock_casing.extreme_engine_intake.name=Extreme Engine Intake Casing
 tile.multiblock_casing.grate.name=Grate Machine Casing
 tile.multiblock_casing.assembly_control.name=Assembly Control Casing
 tile.multiblock_casing.assembly_line.name=Assembly Line Casing
+tile.multiblock_casing.adv_processing_line.name=Advanced Processing Line Casing
 
 # Fusion casing blocks
 tile.fusion_casing.superconductor_coil.name=Superconducting Coil Block
@@ -4739,6 +4740,7 @@ gregtech.machine.cracker.tooltip.1=Every coil after §6Cupronickel§7 reduces en
 gregtech.machine.coke_oven.name=Coke Oven
 gregtech.machine.processing_array.name=Processing Array
 gregtech.machine.advanced_processing_array.name=Advanced Processing Array
+gregtech.machine.advanced_processing_line.name=Advanced Processing Line
 gregtech.machine.coke_oven_hatch.name=Coke Oven Hatch
 gregtech.machine.coke_oven_hatch.tooltip=Allows automation access for the Coke Oven.
 gregtech.machine.large_chemical_reactor.name=Large Chemical Reactor
@@ -4933,6 +4935,7 @@ gregtech.machine.large_miner.luv.tooltip=Terrestrial Harvester
 gregtech.machine.central_monitor.tooltip=But can it run Doom?
 gregtech.machine.processing_array.tooltip=When a few Machines just doesn't cut it
 gregtech.machine.advanced_processing_array.tooltip=Parallelize the World
+gregtech.machine.advanced_processing_line.tooltip=Integrated Production
 gregtech.machine.fluid_drilling_rig.mv.tooltip=Oil Extraction Pump
 gregtech.machine.fluid_drilling_rig.hv.tooltip=Does not perform Fracking
 gregtech.machine.fluid_drilling_rig.ev.tooltip=Well Drainer

@@ -3,6 +3,7 @@ package gregtech.common.pipelike.optical.net;
 import gregtech.api.capability.IDataAccessHatch;
 import gregtech.api.capability.IOpticalComputationProvider;
 import gregtech.api.capability.IOpticalDataAccessHatch;
+import gregtech.api.recipes.CompoundRecipe;
 import gregtech.api.recipes.Recipe;
 import gregtech.common.pipelike.optical.tile.TileEntityOpticalPipe;
 
@@ -50,9 +51,9 @@ public class OpticalNetHandler implements IDataAccessHatch, IOpticalComputationP
     }
 
     @Override
-    public @Nullable Recipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
-                                               @NotNull Collection<IDataAccessHatch> seen) {
-        Recipe recipe = traverseRecipeFind(voltage, inputs, fluidInputs, seen);
+    public @Nullable CompoundRecipe findCompoundRecipe(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs,
+                                                       @NotNull Collection<IDataAccessHatch> seen) {
+        CompoundRecipe recipe = traverseRecipeFind(voltage, inputs, fluidInputs, seen);
         if (recipe != null) setPipesActive();
         return recipe;
     }
@@ -106,7 +107,7 @@ public class OpticalNetHandler implements IDataAccessHatch, IOpticalComputationP
         return false;
     }
 
-    private Recipe traverseRecipeFind(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen) {
+    private CompoundRecipe traverseRecipeFind(long voltage, List<ItemStack> inputs, List<FluidStack> fluidInputs, @NotNull Collection<IDataAccessHatch> seen) {
         if (isNetInvalidForTraversal()) return null;
 
         OpticalRoutePath inv = net.getNetData(pipe.getPipePos(), facing);
