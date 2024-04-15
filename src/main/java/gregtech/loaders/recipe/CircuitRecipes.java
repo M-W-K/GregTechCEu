@@ -1590,5 +1590,18 @@ public class CircuitRecipes {
                 .solderMultiplier(2)
                 .cleanroom(CleanroomType.STERILE_CLEANROOM)
                 .duration(400).EUt(38400).buildAndRegister();
+
+        // Data Configurator
+        CIRCUIT_ASSEMBLER_RECIPES.recipeBuilder()
+                .input(ELITE_CIRCUIT_BOARD, 2)
+                .input(circuit, Tier.LuV, 3)
+                .input(RANDOM_ACCESS_MEMORY, 64)
+                .input(NOR_MEMORY_CHIP, 12)
+                .input(NAND_MEMORY_CHIP, 12)
+                .input(wireFine, Zinc, 32)
+                .output(TOOL_DATA_CONFIGURATOR)
+                .solderMultiplier(2)
+                .cleanroom(CleanroomType.CLEANROOM)
+                .duration(800).EUt(19200).buildAndRegister();
     }
 }
