@@ -12,12 +12,16 @@ import gregtech.api.metatileentity.interfaces.IGregTechTileEntity;
 import gregtech.api.metatileentity.multiblock.IMultiblockAbilityPart;
 import gregtech.api.metatileentity.multiblock.MultiblockAbility;
 import gregtech.api.metatileentity.multiblock.MultiblockControllerBase;
+import gregtech.api.recipes.CompoundRecipe;
 import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMaps;
 import gregtech.api.recipes.machines.IResearchRecipeMap;
+import gregtech.api.util.AdvancedProcessingLineManager;
 import gregtech.api.util.AssemblyLineManager;
+import gregtech.api.util.EnumValidationResult;
 import gregtech.api.util.ItemStackHashStrategy;
 import gregtech.api.util.LocalizationUtils;
+import gregtech.api.util.ValidationResult;
 import gregtech.client.renderer.texture.Textures;
 import gregtech.client.utils.TooltipHelper;
 import gregtech.common.ConfigHolder;
@@ -134,13 +138,24 @@ public class MetaTileEntityDataAccessHatch extends MetaTileEntityMultiblockNotif
         recipes.clear();
         for (int i = 0; i < this.importItems.getSlots(); i++) {
             ItemStack stack = this.importItems.getStackInSlot(i);
-            String researchId = AssemblyLineManager.readResearchId(stack);
             boolean isValid = AssemblyLineManager.isStackDataItem(stack, isDataBank);
-            if (researchId != null && isValid) {
+            if (!isValid) continue;
+            // research attempt
+            String researchId = AssemblyLineManager.readResearchId(stack);
+            if (researchId != null) {
                 Collection<Recipe> collection = ((IResearchRecipeMap) RecipeMaps.ASSEMBLY_LINE_RECIPES)
                         .getDataStickEntry(researchId);
                 if (collection != null) {
                     recipes.addAll(collection);
+                }
+                continue;
+            }
+            // compound recipe attempt
+            CompoundRecipe compoundRecipe = AdvancedProcessingLineManager.readCompoundRecipe(stack);
+            if (compoundRecipe != null) {
+                ValidationResult<Recipe> validation = compoundRecipe.getRecipe();
+                if (validation.getType() == EnumValidationResult.VALID) {
+                    recipes.add(validation.getResult());
                 }
             }
         }

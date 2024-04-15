@@ -1339,6 +1339,14 @@ public final class RecipeMaps {
             "research_station", new ComputationRecipeBuilder(), ResearchStationUI::new);
 
     @ZenProperty
+    public static final RecipeMap<SimpleRecipeBuilder> ADVANCED_PROCESSING_LINE_RECIPES = new RecipeMapBuilder<>(
+            "advanced_processing_line", new SimpleRecipeBuilder())
+            .itemInputs(20).itemOutputs(20).fluidInputs(20).fluidOutputs(20).build();
+    static {
+        ADVANCED_PROCESSING_LINE_RECIPES.recipeMapUI.setJEIVisible(false);
+    }
+
+    @ZenProperty
     public static final RecipeMap<SimpleRecipeBuilder> ROCK_BREAKER_RECIPES = new RecipeMapBuilder<>("rock_breaker",
             new SimpleRecipeBuilder())
                     .itemInputs(1)

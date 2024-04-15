@@ -1,11 +1,11 @@
 package gregtech.api.recipes;
 
-import gregtech.api.recipes.builders.SimpleRecipeBuilder;
 import gregtech.api.recipes.ingredients.GTRecipeFluidInput;
 import gregtech.api.recipes.ingredients.GTRecipeInput;
 import gregtech.api.recipes.ingredients.GTRecipeItemInput;
 import gregtech.api.recipes.ingredients.IntCircuitIngredient;
 import gregtech.api.recipes.logic.OverclockingLogic;
+import gregtech.api.util.AdvancedProcessingLineManager;
 import gregtech.api.util.ValidationResult;
 
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -29,6 +29,7 @@ public class CompoundRecipe {
     private int circuitMeta;
 
     private ValidationResult<Recipe> bakedRecipe;
+    private boolean validBaked = false;
 
     public CompoundRecipe() {}
 
@@ -42,12 +43,14 @@ public class CompoundRecipe {
 
     protected void addRecipe(RecipeInfo info) {
         recipes.put(info.recipe, info);
+        invalidateBaked();
     }
 
     public boolean setRecipeMult(Recipe recipe, int mult) {
         RecipeInfo info = recipes.get(recipe);
         if (info == null) return false;
         info.mult = mult;
+        invalidateBaked();
         return true;
     }
 
@@ -57,10 +60,12 @@ public class CompoundRecipe {
 
     public void removeRecipe(Recipe recipe) {
         recipes.remove(recipe);
+        invalidateBaked();
     }
 
     public void setCircuitMeta(int circuitMeta) {
         this.circuitMeta = circuitMeta;
+        invalidateBaked();
     }
 
     public int getCircuitMeta() {
@@ -68,7 +73,7 @@ public class CompoundRecipe {
     }
 
     public void bakeRecipe() {
-        RecipeBuilder<?> builder = new SimpleRecipeBuilder().EUt(1).duration(0);
+        RecipeBuilder<?> builder = RecipeMaps.ADVANCED_PROCESSING_LINE_RECIPES.recipeBuilder().EUt(1).duration(0);
 
         for (Map.Entry<Recipe, RecipeInfo> recipe : recipes.entrySet()) {
             List<ItemStack> recipeOutputs = deepCopyIS(recipe.getKey().getOutputs(), recipe.getValue().mult);
@@ -158,14 +163,15 @@ public class CompoundRecipe {
         }
         builder.circuitMeta(this.circuitMeta);
         this.bakedRecipe = builder.build();
+        validateBaked();
     }
 
     public ValidationResult<Recipe> getRecipe() {
+        if (!validBaked) bakeRecipe();
         return bakedRecipe;
     }
 
     public ValidationResult<Recipe> bakeAndGetRecipe() {
-        bakeRecipe();
         return getRecipe();
     }
 
@@ -189,7 +195,6 @@ public class CompoundRecipe {
             newRecipe.addRecipe(info);
         }
         newRecipe.setCircuitMeta(tag.getInteger("circuitmeta"));
-        newRecipe.bakeRecipe();
         return newRecipe;
     }
 
@@ -323,5 +328,15 @@ public class CompoundRecipe {
             return new RecipeInfo(recipe, mult, map, machineStacks);
         }
 
+    }
+
+    protected void invalidateBaked() {
+        validBaked = false;
+        AdvancedProcessingLineManager.removeRecipe(this);
+    }
+
+    protected void validateBaked() {
+        validBaked = true;
+        AdvancedProcessingLineManager.addRecipe(this);
     }
 }
