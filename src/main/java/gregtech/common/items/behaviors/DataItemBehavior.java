@@ -19,18 +19,31 @@ import java.util.List;
 public class DataItemBehavior implements IItemBehaviour, IDataItem {
 
     private final boolean requireDataBank;
+    private final int maxCompoundRecipeComplexity;
 
     public DataItemBehavior() {
         this.requireDataBank = false;
+        this.maxCompoundRecipeComplexity = 3;
     }
 
     public DataItemBehavior(boolean requireDataBank) {
         this.requireDataBank = requireDataBank;
+        this.maxCompoundRecipeComplexity = 3;
+    }
+
+    public DataItemBehavior(boolean requireDataBank, int maxCompoundRecipeComplexity) {
+        this.requireDataBank = requireDataBank;
+        this.maxCompoundRecipeComplexity = maxCompoundRecipeComplexity;
     }
 
     @Override
     public boolean requireDataBank() {
         return requireDataBank;
+    }
+
+    @Override
+    public int maxCompoundRecipeComplexity() {
+        return maxCompoundRecipeComplexity;
     }
 
     @Override

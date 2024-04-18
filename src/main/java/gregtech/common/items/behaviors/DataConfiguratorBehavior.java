@@ -8,8 +8,15 @@ import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.factory.MetaItemGuiFactory;
 
+import gregtech.api.recipes.CompoundRecipe;
+
+import gregtech.api.util.AdvancedProcessingLineManager;
+
+import gregtech.api.util.AssemblyLineManager;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
@@ -26,6 +33,7 @@ import com.cleanroommc.modularui.widgets.ItemSlot;
 import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
@@ -62,6 +70,44 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                         .size(18).marginRight(2)
                         .background(GTGuiTextures.SLOT, GTGuiTextures.DATA_ORB_OVERLAY.asIcon().size(16))));
         return panel.child(column).bindPlayerInventory();
+    }
+
+    @Nullable
+    private CompoundRecipe readCompoundRecipe() {
+        return AdvancedProcessingLineManager.readCompoundRecipe(getStoredStack());
+    }
+
+    private boolean writeCompoundRecipe(CompoundRecipe recipe) {
+        ItemStack dataStack = getStoredStack();
+        if (dataStack == ItemStack.EMPTY) return false;
+        NBTTagCompound tag = new NBTTagCompound();
+        AdvancedProcessingLineManager.writeCompoundRecipeToNBT(tag, recipe);
+        dataStack.setTagCompound(tag);
+        return true;
+    }
+
+    private int getDataStackComplexityLimit(ItemStack dataStack) {
+        int max = 0;
+        if (dataStack.getItem() instanceof MetaItem<?> metaItem) {
+            for (IItemBehaviour behaviour : metaItem.getBehaviours(dataStack)) {
+                if (behaviour instanceof IDataItem dataBehavior) {
+                    max = Math.max(max, dataBehavior.maxCompoundRecipeComplexity());
+                }
+            }
+        }
+        return max;
+    }
+
+    private boolean canManipulateDataStack(ItemStack dataStack) {
+        NBTTagCompound tag = dataStack.getTagCompound();
+        return tag == null || !tag.hasKey(AssemblyLineManager.RESEARCH_NBT_TAG);
+    }
+
+    private ItemStack getStoredStack() {
+        ItemStack dataStack = serverStackHandler.getStackInSlot(0);
+        if (serverStackHandler.getStackInSlot(0) == ItemStack.EMPTY)
+            dataStack = clientStackhandler.getStackInSlot(0);
+        return dataStack;
     }
 
     protected static boolean isItemValid(ItemStack stack) {

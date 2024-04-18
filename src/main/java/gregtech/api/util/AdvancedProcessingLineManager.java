@@ -47,6 +47,14 @@ public class AdvancedProcessingLineManager {
     }
 
     /**
+     * @param stack the stack to check
+     * @return if the stack has the compound recipe NBTTagCompound
+     */
+    public static boolean hasRecipeTag(@NotNull ItemStack stack) {
+        return hasRecipeTag(stack.getTagCompound());
+    }
+
+    /**
      * @param tag the tag to check
      * @return if the tag has the compound recipe NBTTagCompound
      */
