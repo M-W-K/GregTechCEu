@@ -35,6 +35,7 @@ import gregtech.common.creativetab.GTCreativeTabs;
 import gregtech.common.entities.GTBoatEntity.GTBoatType;
 import gregtech.common.items.behaviors.ClipboardBehavior;
 import gregtech.common.items.behaviors.ColorSprayBehaviour;
+import gregtech.common.items.behaviors.DataConfiguratorBehavior;
 import gregtech.common.items.behaviors.DataItemBehavior;
 import gregtech.common.items.behaviors.DoorBehavior;
 import gregtech.common.items.behaviors.DynamiteBehaviour;
@@ -567,7 +568,7 @@ public class MetaItem1 extends StandardMetaItem {
         TOOL_DATA_STICK = addItem(261, "tool.datastick").addComponents(new DataItemBehavior());
         TOOL_DATA_ORB = addItem(262, "tool.dataorb").addComponents(new DataItemBehavior());
         TOOL_DATA_MODULE = addItem(263, "tool.datamodule").addComponents(new DataItemBehavior(true));
-        TOOL_DATA_CONFIGURATOR = addItem(265, "tool.dataconfigurator");
+        TOOL_DATA_CONFIGURATOR = addItem(265, "tool.dataconfigurator").addComponents(new DataConfiguratorBehavior());
 
         // Special Machine Components: ID 266-280
         COMPONENT_GRINDER_DIAMOND = addItem(266, "component.grinder.diamond")
