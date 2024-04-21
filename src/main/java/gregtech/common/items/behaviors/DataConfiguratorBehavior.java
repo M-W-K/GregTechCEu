@@ -5,11 +5,17 @@ import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IDataItem;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
+import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.factory.MetaItemGuiFactory;
 import gregtech.api.recipes.CompoundRecipe;
 
+import gregtech.api.recipes.RecipeMap;
+
+import gregtech.api.util.GTUtility;
+
+import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
@@ -77,10 +83,10 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                                 .singletonSlotGroup(101))
                         .setEnabledIf(widget -> hasDataItem(guiData))
                 )
-//                .child(IKey.dynamic(() -> I18n.format("recipemap." + getRecipeMap(selectedMapIndex.getIntValue()).unlocalizedName + ".name")).color(0xFF222222).asWidget()
-//                        .heightRel(1.0f)
-//                        .setEnabledIf(widget -> hasDataItem(guiData))
-//                )
+                .child(IKey.dynamic(() -> getRecipeMapName(getGhostItemRecipeMap(guiData))).color(0xFF222222).asWidget()
+                        .heightRel(1.0f)
+                        .setEnabledIf(widget -> hasDataItem(guiData) && hasMachineItem(guiData))
+                )
                 .child(new ButtonWidget<>()
                         .size(18)
                         .background(GTGuiTextures.BUTTON)
@@ -116,11 +122,18 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
         return !getStackHandler(guiData).getStackInSlot(0).isEmpty();
     }
 
-//    private RecipeMap<SimpleRecipeBuilder> getRecipeMap(HandGuiData guiData) {
-//        if (getStackHandler(guiData).getStackInSlot(1).getItem() instanceof MachineItemBlock) {
-//            getStackHandler(guiData).getStackInSlot(1).getItem()
-//        }
-//    }
+    private boolean hasMachineItem(HandGuiData guiData) {
+        return !getStackHandler(guiData).getStackInSlot(1).isEmpty();
+    }
+
+    private RecipeMap<?> getGhostItemRecipeMap(HandGuiData guiData) {
+        MetaTileEntity mte = GTUtility.getMetaTileEntity(getStackHandler(guiData).getStackInSlot(1));
+        return (mte == null)? null : mte.getRecipeMap();
+    }
+
+    private String getRecipeMapName(RecipeMap<?> map) {
+        return (map == null)? "Invalid Machine Selected" : I18n.format("recipemap." + map.unlocalizedName + ".name");
+    }
 
     protected static class DataStackHandler extends ItemStackHandler {
 
