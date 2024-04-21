@@ -14,6 +14,8 @@ import gregtech.api.recipes.RecipeMap;
 import gregtech.api.util.AdvancedProcessingLineManager;
 import gregtech.api.util.GTUtility;
 
+import gregtech.common.metatileentities.MetaTileEntities;
+
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
@@ -126,6 +128,10 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
     private String getRecipeMapName(RecipeMap<?> map) {
         return (map == null)? "Invalid Machine Selected" : I18n.format("recipemap." + map.unlocalizedName + ".name");
+    }
+
+    private boolean isMachineAllowed(ItemStack machineStack) {
+        return GTUtility.isMachineValidForMachineHatch(machineStack, MetaTileEntities.ADVANCED_PROCESSING_LINE.getBlacklist());
     }
 
     protected static class DataStackHandler extends ItemStackHandler {

@@ -217,6 +217,11 @@ public class MetaTileEntityAdvProcessingLine extends RecipeMapMultiblockControll
     }
 
     @Override
+    public String[] getBlacklist() {
+        return ConfigHolder.machines.processingLineBlacklist;
+    }
+
+    @Override
     public SoundEvent getBreakdownSound() {
         return GTSoundEvents.BREAKDOWN_MECHANICAL;
     }

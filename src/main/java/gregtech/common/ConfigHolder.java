@@ -119,6 +119,11 @@ public class ConfigHolder {
                 "Default: All machines allowed" })
         public String[] processingArrayBlacklist = new String[0];
 
+        @Config.Comment({ "Blacklist of machines for the Processing Line.",
+                "Add the unlocalized Recipe Map name to blacklist the machine.",
+                "Default: All machines allowed" })
+        public String[] processingLineBlacklist = new String[0];
+
         @Config.Comment({ "Whether to enable the cleanroom, required for various recipes.", "Default: true" })
         public boolean enableCleanroom = true;
 
