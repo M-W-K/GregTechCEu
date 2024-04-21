@@ -10,22 +10,18 @@ import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.factory.MetaItemGuiFactory;
 import gregtech.api.recipes.CompoundRecipe;
-
 import gregtech.api.recipes.RecipeMap;
-
+import gregtech.api.util.AdvancedProcessingLineManager;
 import gregtech.api.util.GTUtility;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.ItemStackHandler;
 
 import com.cleanroommc.modularui.api.drawable.IKey;
@@ -39,9 +35,6 @@ import com.cleanroommc.modularui.widgets.ItemSlot;
 import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
@@ -137,7 +130,7 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
     protected static class DataStackHandler extends ItemStackHandler {
 
-        public final List<CompoundRecipe.RecipeInfo> recipes = new ArrayList<>();
+        private CompoundRecipe compoundRecipe;
 
         public DataStackHandler() {
             super(2);
@@ -154,26 +147,33 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
         }
 
         @Override
+        public @NotNull ItemStack extractItem(int slot, int amount, boolean simulate) {
+            ItemStack returnable = super.extractItem(slot, amount, simulate);
+            if (slot == 0) {
+                NBTTagCompound tag = new NBTTagCompound();
+                AdvancedProcessingLineManager.writeCompoundRecipeToNBT(new NBTTagCompound(), this.compoundRecipe);
+                returnable.setTagCompound(tag);
+            }
+            return returnable;
+        }
+
+        @Override
         protected void onContentsChanged(int slot) {
-            if (slot == 0 && !getStackInSlot(slot).isEmpty()) {
-                syncDataItemNBT(getStackInSlot(slot));
+            if (slot == 0) {
+                ItemStack slotstack = getStackInSlot(slot);
+                if (!slotstack.isEmpty()) {
+                    this.compoundRecipe = AdvancedProcessingLineManager.readCompoundRecipe(slotstack);
+                }
             }
             super.onContentsChanged(slot);
         }
 
-        private void syncDataItemNBT(ItemStack stack) {
-            NBTTagCompound tag = stack.getTagCompound();
-            if (tag == null) {
-                tag = new NBTTagCompound();
-                tag.setTag("recipes", new NBTTagList());
-                stack.setTagCompound(tag);
-            }
-            NBTTagList nbtRecipes = tag.getTagList("recipes", Constants.NBT.TAG_LIST);
-            for (NBTBase nbtRecipe : nbtRecipes) {
-                if (nbtRecipe instanceof NBTTagCompound) {
-                    recipes.add(CompoundRecipe.RecipeInfo.readFromNBT((NBTTagCompound) nbtRecipe));
-                }
-            }
+        public CompoundRecipe getCompoundRecipe() {
+            return this.compoundRecipe;
+        }
+
+        public boolean hasCompoundRecipe() {
+            return this.compoundRecipe != null;
         }
     }
 
