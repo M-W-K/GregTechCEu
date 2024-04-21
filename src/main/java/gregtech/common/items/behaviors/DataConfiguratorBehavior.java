@@ -168,12 +168,9 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
             super.onContentsChanged(slot);
         }
 
-        public CompoundRecipe getCompoundRecipe() {
+        public @NotNull CompoundRecipe getCompoundRecipe() {
+            if (this.compoundRecipe == null) this.compoundRecipe = new CompoundRecipe();
             return this.compoundRecipe;
-        }
-
-        public boolean hasCompoundRecipe() {
-            return this.compoundRecipe != null;
         }
     }
 
