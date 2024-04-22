@@ -346,5 +346,31 @@ public class CompoundRecipe {
             return new RecipeInfo(recipe, mult, map, machineStacks);
         }
 
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            RecipeInfo that = (RecipeInfo) o;
+            return mult == that.mult && Objects.equals(recipe, that.recipe) &&
+                    Objects.equals(parentMap, that.parentMap) && Objects.equals(machineStacks, that.machineStacks);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(recipe, mult, parentMap, machineStacks);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CompoundRecipe recipe = (CompoundRecipe) o;
+        return circuitMeta == recipe.circuitMeta && Objects.equals(recipes, recipe.recipes);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(recipes, circuitMeta);
     }
 }
