@@ -1,6 +1,11 @@
 package gregtech.common.items.behaviors;
 
+import com.cleanroommc.modularui.api.widget.IGuiAction;
+
+import com.cleanroommc.modularui.api.widget.Interactable;
 import gregtech.api.block.machines.MachineItemBlock;
+import gregtech.api.gui.GuiTextures;
+import gregtech.api.gui.Widget;
 import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IDataItem;
@@ -77,20 +82,26 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                                 .filter(DataConfiguratorBehavior::isMachineItem)
                                 .singletonSlotGroup(101))
                         .setEnabledIf(widget -> hasDataItem(guiData))
+                        .marginRight(2)
                 )
                 .child(IKey.dynamic(() -> getRecipeMapName(getGhostItemRecipeMap(guiData))).color(0xFF222222).asWidget()
                         .heightRel(1.0f)
                         .setEnabledIf(widget -> hasDataItem(guiData) && hasMachineItem(guiData))
+                        .alignment(Alignment.CenterLeft)
+                        .widthRel(0.75f)
+                        .marginLeft(2)
                 )
                 .child(new ButtonWidget<>()
                         .size(18)
-                        .background(GTGuiTextures.BUTTON)
+                        .background(GTGuiTextures.BUTTON_PLUS)
+                        .disableHoverBackground()
                         .align(Alignment.TopRight)
                         .setEnabledIf(widget -> hasDataItem(guiData))
                         .onMouseReleased(button -> {
+                            Interactable.playButtonClickSound();
                             return true;
-                        }
-                )));
+                        })
+                ));
         return panel.child(column).bindPlayerInventory();
     }
 
@@ -127,7 +138,7 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
     }
 
     private String getRecipeMapName(RecipeMap<?> map) {
-        return (map == null)? "Invalid Machine Selected" : I18n.format("recipemap." + map.unlocalizedName + ".name");
+        return (map == null)? "Invalid Machine" : I18n.format("recipemap." + map.unlocalizedName + ".name");
     }
 
     private boolean isMachineAllowed(ItemStack machineStack) {

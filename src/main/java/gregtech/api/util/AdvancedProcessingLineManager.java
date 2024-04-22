@@ -37,10 +37,10 @@ public class AdvancedProcessingLineManager {
      * @param stack the ItemStack to read from
      * @return the compound recipe
      */
-    @Nullable
+    @NotNull
     public static CompoundRecipe readCompoundRecipe(@NotNull ItemStack stack) {
         NBTTagCompound tag = stack.getTagCompound();
-        if (!hasRecipeTag(tag)) return null;
+        if (!hasRecipeTag(tag)) return new CompoundRecipe();
 
         NBTTagCompound compoundRecipeTag = tag.getCompoundTag(COMPOUND_RECIPE_NBT_TAG);
         return CompoundRecipe.readFromNBT(compoundRecipeTag.getCompoundTag("recipe"));
