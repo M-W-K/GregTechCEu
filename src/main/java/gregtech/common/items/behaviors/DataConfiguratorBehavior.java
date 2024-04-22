@@ -15,6 +15,7 @@ import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
 import gregtech.api.mui.factory.MetaItemGuiFactory;
 import gregtech.api.recipes.CompoundRecipe;
+import gregtech.api.recipes.Recipe;
 import gregtech.api.recipes.RecipeMap;
 import gregtech.api.util.AdvancedProcessingLineManager;
 import gregtech.api.util.GTUtility;
@@ -43,6 +44,8 @@ import com.cleanroommc.modularui.widgets.layout.Column;
 import com.cleanroommc.modularui.widgets.layout.Row;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Map;
+
 public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
     // annoying singleplayer server bug w/ metaitems specifically forces distinct handlers between client and server.
@@ -62,11 +65,11 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
     @Override
     public ModularPanel buildUI(HandGuiData guiData, GuiSyncManager guiSyncManager) {
-        var panel = GTGuis.createPanel(guiData.getUsedItemStack(), 176, 192);
-        var column = new Column().top(5).margin(7, 0)
+        ModularPanel panel = GTGuis.createPanel(guiData.getUsedItemStack(), 176, 192);
+
+        Column column = new Column().top(5).margin(7, 0)
                 .widthRel(1f).coverChildrenHeight();
         column.child(new Row()
-                //                .pos(4, 4)
                 .height(16).coverChildrenWidth()
                 .child(IKey.str(guiData.getUsedItemStack().getDisplayName()).color(0xFF222222).asWidget().heightRel(1.0f)));
 
@@ -75,22 +78,20 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                         .slot(SyncHandlers.itemSlot(getStackHandler(guiData), 0)
                                 .filter(DataConfiguratorBehavior::isDataItem)
                                 .singletonSlotGroup(101))
-                        .size(18).marginRight(2)
+                        .size(18).marginRight(1)
                         .background(GTGuiTextures.SLOT, GTGuiTextures.DATA_ORB_OVERLAY.asIcon().size(16)))
                 .child(new ItemSlot()
                         .slot(SyncHandlers.phantomItemSlot(getStackHandler(guiData), 1)
                                 .filter(DataConfiguratorBehavior::isMachineItem)
                                 .singletonSlotGroup(101))
                         .setEnabledIf(widget -> hasDataItem(guiData))
-                        .marginRight(2)
-                )
+                        .marginRight(2))
                 .child(IKey.dynamic(() -> getRecipeMapName(getGhostItemRecipeMap(guiData))).color(0xFF222222).asWidget()
                         .heightRel(1.0f)
                         .setEnabledIf(widget -> hasDataItem(guiData) && hasMachineItem(guiData))
                         .alignment(Alignment.CenterLeft)
                         .widthRel(0.75f)
-                        .marginLeft(2)
-                )
+                        .marginLeft(2))
                 .child(new ButtonWidget<>()
                         .size(18)
                         .background(GTGuiTextures.BUTTON_PLUS)
@@ -100,9 +101,32 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                         .onMouseReleased(button -> {
                             Interactable.playButtonClickSound();
                             return true;
-                        })
-                ));
-        return panel.child(column).bindPlayerInventory();
+                        })));
+        panel.child(column);
+
+        column = new Column().margin(7, 7, 40, 0)
+                .widthRel(1f).coverChildrenHeight();
+        column.child(new Row().coverChildrenHeight().marginBottom(2).widthRel(1f)
+                .child(new ItemSlot()
+                        .slot(SyncHandlers.itemSlot(getStackHandler(guiData), 2)
+                                .filter(DataConfiguratorBehavior::isDataItem)
+                                .singletonSlotGroup(101))
+                        .size(18).marginRight(2)
+                        .background(GTGuiTextures.SLOT, GTGuiTextures.DATA_ORB_OVERLAY.asIcon().size(16)))
+                .child(new ButtonWidget<>()
+                        .size(18)
+                        .background(GTGuiTextures.BUTTON_MINUS)
+                        .disableHoverBackground()
+                        .align(Alignment.TopRight)
+                        .setEnabledIf(widget -> hasDataItem(guiData))
+                        .onMouseReleased(button -> {
+                            Interactable.playButtonClickSound();
+                            return true;
+                        })));
+        column.setEnabledIf(widget -> hasDataItem(guiData));
+        panel.child(column);
+
+        return panel.bindPlayerInventory();
     }
 
     protected static boolean isDataItem(ItemStack stack) {
@@ -145,12 +169,32 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
         return GTUtility.isMachineValidForMachineHatch(machineStack, MetaTileEntities.ADVANCED_PROCESSING_LINE.getBlacklist());
     }
 
+    private Column getRecipeListWidget(HandGuiData guiData) {
+        Column column = new Column();
+        for (Map.Entry<Recipe, CompoundRecipe.RecipeInfo> entry : getStackHandler(guiData).getCompoundRecipe().getRecipes().entrySet()) {
+//            column.child(new Row()entry.getValue().machineStacks
+//                    .child(new ItemSlot()
+//                            .slot(SyncHandlers.phantomItemSlot(getStackHandler(guiData), 1)
+//                                    .filter(DataConfiguratorBehavior::isMachineItem)
+//                                    .singletonSlotGroup(101))
+//                            .setEnabledIf(widget -> hasDataItem(guiData))
+//                            .marginRight(2))
+//                    .child(IKey.dynamic(() -> getRecipeMapName(getGhostItemRecipeMap(guiData))).color(0xFF222222).asWidget()
+//                            .heightRel(1.0f)
+//                            .setEnabledIf(widget -> hasDataItem(guiData) && hasMachineItem(guiData))
+//                            .alignment(Alignment.CenterLeft)
+//                            .widthRel(0.75f)
+//                            .marginLeft(2))
+        }
+        return column;
+    }
+
     protected static class DataStackHandler extends ItemStackHandler {
 
         private CompoundRecipe compoundRecipe;
 
         public DataStackHandler() {
-            super(2);
+            super(3); // slot 0: data stick, slot 1: machine ghost slot, slot 2: copy data stick
         }
 
         @Override
@@ -160,7 +204,7 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
 
         @Override
         public boolean isItemValid(int slot, @NotNull ItemStack stack) {
-            return (slot == 0)? DataConfiguratorBehavior.isDataItem(stack) : DataConfiguratorBehavior.isMachineItem(stack);
+            return (slot == 1)? DataConfiguratorBehavior.isMachineItem(stack) : DataConfiguratorBehavior.isDataItem(stack);
         }
 
         @Override
@@ -168,7 +212,7 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
             ItemStack returnable = super.extractItem(slot, amount, simulate);
             if (slot == 0) {
                 NBTTagCompound tag = new NBTTagCompound();
-                AdvancedProcessingLineManager.writeCompoundRecipeToNBT(new NBTTagCompound(), this.compoundRecipe);
+                AdvancedProcessingLineManager.writeCompoundRecipeToNBT(new NBTTagCompound(), this.getCompoundRecipe());
                 returnable.setTagCompound(tag);
             }
             return returnable;

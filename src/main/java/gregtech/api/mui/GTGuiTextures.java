@@ -343,6 +343,12 @@ public class GTGuiTextures {
             .adaptable(2)
             .build();
 
+    public static final UITexture BUTTON_MINUS = new UITexture.Builder()
+            .location(GTValues.MODID, "textures/gui/widget/button_circuit_minus.png") // todo
+            .imageSize(18, 18)
+            .adaptable(2)
+            .build();
+
     // BUTTON OVERLAYS
 
     public static final UITexture BUTTON_ITEM_OUTPUT = fullImage("textures/gui/widget/button_item_output_overlay.png");
