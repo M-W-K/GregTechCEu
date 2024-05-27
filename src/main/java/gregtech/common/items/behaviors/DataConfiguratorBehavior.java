@@ -10,6 +10,7 @@ import gregtech.api.items.gui.ItemUIFactory;
 import gregtech.api.items.metaitem.MetaItem;
 import gregtech.api.items.metaitem.stats.IDataItem;
 import gregtech.api.items.metaitem.stats.IItemBehaviour;
+import gregtech.api.items.metaitem.stats.IItemCapabilityProvider;
 import gregtech.api.metatileentity.MetaTileEntity;
 import gregtech.api.mui.GTGuiTextures;
 import gregtech.api.mui.GTGuis;
@@ -28,8 +29,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.world.World;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemStackHandler;
 
 import com.cleanroommc.modularui.api.drawable.IKey;
@@ -46,11 +51,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Map;
 
-public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
-
-    // annoying singleplayer server bug w/ metaitems specifically forces distinct handlers between client and server.
-    private final DataStackHandler serverStackHandler = new DataStackHandler();
-    private final DataStackHandler clientStackhandler = new DataStackHandler();
+public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory, IItemCapabilityProvider {
 
     public DataConfiguratorBehavior() {}
 
@@ -145,7 +146,7 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
     }
 
     private DataStackHandler getStackHandler(HandGuiData guiData) {
-        return guiData.isClient() ? clientStackhandler : serverStackHandler;
+        return (DataStackHandler) guiData.getUsedItemStack().getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
     }
 
     private boolean hasDataItem(HandGuiData guiData) {
@@ -189,12 +190,36 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
         return column;
     }
 
+    @Override
+    public ICapabilityProvider createProvider(ItemStack itemStack) {
+        return new ICapabilityProvider() {
+
+            private final DataStackHandler handler = new DataStackHandler(itemStack);
+
+            @Override
+            public boolean hasCapability(@NotNull Capability<?> capability, EnumFacing facing) {
+                return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+            }
+
+            @SuppressWarnings("unchecked")
+            @Override
+            public <T> T getCapability(@NotNull Capability<T> capability, EnumFacing facing) {
+                if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) return (T) handler;
+                else return null;
+            }
+        };
+    }
+
     protected static class DataStackHandler extends ItemStackHandler {
 
+        private final ItemStack stack;
         private CompoundRecipe compoundRecipe;
 
-        public DataStackHandler() {
+        public DataStackHandler(ItemStack stack) {
             super(3); // slot 0: data stick, slot 1: machine ghost slot, slot 2: copy data stick
+            this.stack = stack;
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag != null && tag.hasKey("Items")) this.deserializeNBT(tag.getCompoundTag("Items"));
         }
 
         @Override
@@ -226,6 +251,12 @@ public class DataConfiguratorBehavior implements IItemBehaviour, ItemUIFactory {
                     this.compoundRecipe = AdvancedProcessingLineManager.readCompoundRecipe(slotstack);
                 }
             }
+            NBTTagCompound tag = stack.getTagCompound();
+            if (tag == null) {
+                tag = new NBTTagCompound();
+                stack.setTagCompound(tag);
+            }
+            tag.setTag("Items", this.serializeNBT());
             super.onContentsChanged(slot);
         }
 
